@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sarah Tseng — Portfolio</title>
+<title>Your Name — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -186,11 +186,7 @@
   section.on-panel{ background: var(--beige-panel); }
 
   .section-head{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 24px;
-    margin-bottom: 48px;
+    margin-bottom: 56px;
     border-bottom: 1px solid var(--line);
     padding-bottom: 22px;
   }
@@ -201,63 +197,81 @@
 
   .section-head p{
     color: var(--ink-soft);
-    max-width: 34ch;
-    margin: 0;
+    max-width: 40ch;
+    margin: 10px 0 0;
   }
 
   /* ---------- Work ---------- */
 
-  .work-list{
-    display: flex;
-    flex-direction: column;
-  }
-
-  .work-item{
+  .project{
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 52px;
     align-items: center;
-    gap: 24px;
-    padding: 30px 0;
+    padding: 56px 0;
     border-bottom: 1px solid var(--line);
-    text-decoration: none;
-    color: inherit;
   }
 
-  .work-item:first-child{ padding-top: 0; }
+  .project:last-child{ border-bottom: none; padding-bottom: 0; }
+  .project:first-child{ padding-top: 0; }
 
-  .work-item .title{
-    font-family: 'Bodoni Moda', serif;
-    font-size: 1.5rem;
+  .project.reverse{ grid-template-columns: 1.3fr 1fr; }
+  .project.reverse .project-info{ order: 2; }
+  .project.reverse .project-media{ order: 1; }
+
+  .project-info h3{
+    font-size: 1.9rem;
+    margin-bottom: 14px;
   }
 
-  .work-item .desc{
+  .project-info p{
     color: var(--ink-soft);
-    font-size: 0.95rem;
-    margin-top: 6px;
     max-width: 42ch;
+    margin: 0 0 20px;
   }
 
-  .work-item .tag{
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    white-space: nowrap;
+  .project-link{
+    display: inline-block;
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
   }
 
-  .work-item .go{
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    display: flex;
+  .project-media{
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--pink);
+  }
+
+  .project-media img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media-placeholder{
+    display: none;
+    position: absolute;
+    inset: 0;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    text-align: center;
+    padding: 24px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    border: 1px dashed var(--ink-soft);
+    border-radius: 14px;
+    background: var(--beige-panel);
   }
 
-  .work-item:hover .go{
-    background: var(--pink);
-    border-color: var(--pink);
+  .media-placeholder code{
+    background: var(--beige);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
   }
 
   /* ---------- About ---------- */
@@ -340,8 +354,8 @@
     .hero-mark{ order: -1; aspect-ratio: 16 / 9; }
     .about-grid{ grid-template-columns: 1fr; }
     .contact-inner{ grid-template-columns: 1fr; }
-    .work-item{ grid-template-columns: 1fr auto; }
-    .work-item .tag{ display: none; }
+    .project, .project.reverse{ grid-template-columns: 1fr; padding: 40px 0; }
+    .project.reverse .project-info, .project.reverse .project-media{ order: initial; }
     nav{ gap: 18px; font-size: 0.88rem; }
     header .wrap{ flex-wrap: wrap; gap: 14px; }
     footer{ flex-direction: column; gap: 8px; }
@@ -377,8 +391,7 @@
       <h1>Making things that <em>feel</em> considered.</h1>
       <p class="lede">I design digital products and brand systems for teams who care about the details. Currently based in [Your City], open to new projects.</p>
       <div class="actions">
-        <a class="btn btn-primary" href="#work">See the work</a>
-        <a class="btn btn-ghost" href="#contact">Get in touch</a>
+        <a class="btn btn-primary" href="#contact">Get in touch</a>
       </div>
     </div>
     <div class="hero-mark">
@@ -390,42 +403,56 @@
 <section id="work">
   <div class="wrap">
     <div class="section-head">
-      <h2>Selected work</h2>
+      <h2>My work</h2>
       <p>A few projects that show how I think, from early strategy through shipped detail.</p>
     </div>
-    <div class="work-list">
-      <a class="work-item" href="#">
-        <div>
-          <div class="title">Orchard — grocery delivery app</div>
-          <div class="desc">Redesigned checkout and reduced drop-off across the funnel.</div>
-        </div>
-        <div class="tag">Product design, 2025</div>
-        <div class="go">→</div>
-      </a>
-      <a class="work-item" href="#">
-        <div>
-          <div class="title">Northwind — brand identity</div>
-          <div class="desc">Full visual identity and packaging system for a coffee roaster.</div>
-        </div>
-        <div class="tag">Branding, 2024</div>
-        <div class="go">→</div>
-      </a>
-      <a class="work-item" href="#">
-        <div>
-          <div class="title">Ledger — finance dashboard</div>
-          <div class="desc">Data-dense interface rebuilt around clarity and trust.</div>
-        </div>
-        <div class="tag">Product design, 2024</div>
-        <div class="go">→</div>
-      </a>
-      <a class="work-item" href="#">
-        <div>
-          <div class="title">Paper Trail — editorial site</div>
-          <div class="desc">Publishing platform with a custom type system and reading modes.</div>
-        </div>
-        <div class="tag">Web design, 2023</div>
-        <div class="go">→</div>
-      </a>
+
+    <div class="project">
+      <div class="project-info">
+        <h3>Orchard — grocery delivery app</h3>
+        <p>Redesigned checkout and rebuilt the flow around speed and trust, cutting drop-off across the funnel.</p>
+        <a class="project-link" href="#">View project →</a>
+      </div>
+      <div class="project-media">
+        <img src="orchard.gif" alt="Orchard project preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="media-placeholder">Drop <code>orchard.gif</code> next to this file</div>
+      </div>
+    </div>
+
+    <div class="project reverse">
+      <div class="project-info">
+        <h3>Northwind — brand identity</h3>
+        <p>Full visual identity and packaging system built for a small-batch coffee roaster.</p>
+        <a class="project-link" href="#">View project →</a>
+      </div>
+      <div class="project-media">
+        <img src="northwind.gif" alt="Northwind project preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="media-placeholder">Drop <code>northwind.gif</code> next to this file</div>
+      </div>
+    </div>
+
+    <div class="project">
+      <div class="project-info">
+        <h3>Ledger — finance dashboard</h3>
+        <p>A data-dense interface rebuilt around clarity, so numbers read at a glance instead of a squint.</p>
+        <a class="project-link" href="#">View project →</a>
+      </div>
+      <div class="project-media">
+        <img src="ledger.gif" alt="Ledger project preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="media-placeholder">Drop <code>ledger.gif</code> next to this file</div>
+      </div>
+    </div>
+
+    <div class="project reverse">
+      <div class="project-info">
+        <h3>Paper Trail — editorial site</h3>
+        <p>A publishing platform with a custom type system and two distinct reading modes.</p>
+        <a class="project-link" href="#">View project →</a>
+      </div>
+      <div class="project-media">
+        <img src="paper-trail.gif" alt="Paper Trail project preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="media-placeholder">Drop <code>paper-trail.gif</code> next to this file</div>
+      </div>
     </div>
   </div>
 </section>
