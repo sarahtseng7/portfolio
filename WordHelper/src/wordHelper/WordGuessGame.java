@@ -5,8 +5,11 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +29,9 @@ import java.util.List;
  */
 public class WordGuessGame extends JFrame {
 
-    private static final long serialVersionUID = 1L;
-
-	private static final Color BACKGROUND = new Color(245, 245, 245);
+    private static final Color BACKGROUND = new Color(210, 232, 250); // pale blue
+    private static final String TITLE_IMAGE_FILE = "title.gif";
+    private static final int MAX_BUTTON_ICON_WIDTH = 260;
 
     private JPanel cards;
     private CardLayout cardLayout;
@@ -68,35 +71,114 @@ public class WordGuessGame extends JFrame {
         inner.setBackground(BACKGROUND);
         inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("Word Guess Helper");
-        title.setFont(new Font("SansSerif", Font.BOLD, 32));
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel title = buildTitleLabel();
 
-        JLabel subtitle = new JLabel("Choose a game to narrow down the answer");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton wordleBtn = new JButton("Wordle (5 letters, 6 tries)");
-        JButton jeffBtn = new JButton("Jeff Goldblum (12 letters, 3 tries)");
+        JButton wordleBtn = buildImageButton("wordle.gif", "Wordle (5 letters, 6 tries)");
+        JButton jeffBtn = buildImageButton("jeff.gif", "Jeff Goldblum (12 letters, 3 tries)");
         for (JButton b : new JButton[]{wordleBtn, jeffBtn}) {
-            b.setAlignmentX(Component.CENTER_ALIGNMENT);
-            b.setFont(new Font("SansSerif", Font.PLAIN, 18));
-            b.setMaximumSize(new Dimension(320, 45));
+            if (b.getIcon() == null) {
+                b.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                b.setPreferredSize(new Dimension(300, 45));
+            }
         }
+
+        JPanel buttonRow = new JPanel(new GridLayout(1, 2, 20, 0));
+        buttonRow.setBackground(BACKGROUND);
+        buttonRow.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonRow.add(wordleBtn);
+        buttonRow.add(jeffBtn);
 
         wordleBtn.addActionListener(e -> startGame(5, 6, "wordle.csv"));
         jeffBtn.addActionListener(e -> startGame(12, 3, "jeff.csv"));
 
         inner.add(title);
-        inner.add(Box.createVerticalStrut(8));
-        inner.add(subtitle);
         inner.add(Box.createVerticalStrut(30));
-        inner.add(wordleBtn);
-        inner.add(Box.createVerticalStrut(15));
-        inner.add(jeffBtn);
+        inner.add(buttonRow);
 
         panel.add(inner);
         return panel;
+    }
+
+    /**
+     * Loads title.gif (expected in the same folder you launch "java" from)
+     * as the title graphic. Falls back to a plain text title if the file
+     * is missing so the menu screen still works.
+     */
+    private JLabel buildTitleLabel() {
+        ImageIcon icon = new ImageIcon(TITLE_IMAGE_FILE);
+        JLabel label;
+        if (icon.getIconWidth() > 0) {
+            label = new JLabel(icon);
+        } else {
+            label = new JLabel("Word Guess Helper");
+            label.setFont(new Font("SansSerif", Font.BOLD, 32));
+        }
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return label;
+    }
+
+    /**
+     * Builds a button that shows the middle third (by width) of imageFile as
+     * its icon (borderless, so it reads as a clean image button), if the
+     * file can be loaded from the current working directory; otherwise
+     * falls back to a plain text button with fallbackText so the app still
+     * works without the image. Note: cropping is done with ImageIO, which
+     * only reads the first frame of an animated GIF, so a cropped .gif will
+     * display as a static image rather than animating.
+     */
+    private JButton buildImageButton(String imageFile, String fallbackText) {
+        BufferedImage cropped = loadMiddleThird(imageFile);
+        JButton button;
+        if (cropped != null) {
+            BufferedImage sized = scaleToMaxWidth(cropped, MAX_BUTTON_ICON_WIDTH);
+            button = new JButton(new ImageIcon(sized));
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(false);
+            button.setFocusPainted(false);
+            button.setMargin(new Insets(0, 0, 0, 0));
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            button.setToolTipText(fallbackText);
+        } else {
+            button = new JButton(fallbackText);
+        }
+        return button;
+    }
+
+    /** Loads imageFile and crops out only the middle third of its width (full height). */
+    private BufferedImage loadMiddleThird(String imageFile) {
+        try {
+            BufferedImage full = ImageIO.read(new File(imageFile));
+            if (full == null) {
+                return null;
+            }
+            int width = full.getWidth();
+            int height = full.getHeight();
+            int thirdWidth = Math.max(1, width / 3);
+            int x = thirdWidth; // skip the first third
+            if (x + thirdWidth > width) {
+                thirdWidth = width - x; // guard against rounding
+            }
+            return full.getSubimage(x, 0, thirdWidth, height);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /** Scales img down (preserving aspect ratio) if it's wider than maxWidth; otherwise returns it unchanged. */
+    private BufferedImage scaleToMaxWidth(BufferedImage img, int maxWidth) {
+        int width = img.getWidth();
+        int height = img.getHeight();
+        if (width <= maxWidth) {
+            return img;
+        }
+        double scale = (double) maxWidth / width;
+        int newHeight = Math.max(1, (int) Math.round(height * scale));
+        BufferedImage scaled = new BufferedImage(maxWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = scaled.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(img, 0, 0, maxWidth, newHeight, null);
+        g2.dispose();
+        return scaled;
     }
 
     // ---------------------------------------------------------------
@@ -145,7 +227,7 @@ public class WordGuessGame extends JFrame {
                         + "Click \"Update Results\" any time.</html>");
         instructions.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
-        JButton backBtn = new JButton("Back to Menu");
+        JButton backBtn = buildImageButton("back.png", "Back to Menu");
         backBtn.addActionListener(e -> cardLayout.show(cards, "menu"));
 
         top.add(instructions, BorderLayout.CENTER);
@@ -257,9 +339,9 @@ public class WordGuessGame extends JFrame {
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonRow.setBackground(BACKGROUND);
-        JButton updateBtn = new JButton("Update Results");
+        JButton updateBtn = buildImageButton("update.png", "Update Results");
         updateBtn.addActionListener((ActionEvent e) -> updateResults());
-        JButton resetBtn = new JButton("Reset All Boxes");
+        JButton resetBtn = buildImageButton("reset.png", "Reset All Boxes");
         resetBtn.addActionListener(e -> resetAll());
         resultCountLabel = new JLabel("Possible words: --");
         resultCountLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
